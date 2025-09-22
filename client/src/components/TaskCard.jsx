@@ -1,10 +1,21 @@
-import { useState } from 'react';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import FlagIcon from '@mui/icons-material/Flag';
 import NotesIcon from '@mui/icons-material/Notes';
-import { Button, Card, CardActions, CardContent, Chip, FormControl, IconButton, InputLabel, MenuItem, Select, Stack, TextField, Tooltip, Typography } from '@mui/material';
+import {
+  Card,
+  CardActions,
+  CardContent,
+  Chip,
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  TextField,
+  Typography
+} from '@mui/material';
 import { STATUS_OPTIONS } from '../utils/taskUtils';
 
 const PRIORITY_COLOR = {
@@ -14,54 +25,24 @@ const PRIORITY_COLOR = {
 };
 
 export default function TaskCard({ task, onStatusChange, onEdit, onDelete, onTimeLogChange }) {
-  const [copyState, setCopyState] = useState('idle');
-
   const handleStatusChange = (event) => {
-    onStatusChange?.(task.id, event.target.value);
+    onStatusChange?.(task.id, event.target.value, task);
   };
 
   const handleTimeChange = (event) => {
     onTimeLogChange?.(task.id, event.target.value);
   };
 
-  const canCopyStatus = Boolean(task.statusSummary);
-  const clipboardAvailable = typeof navigator !== 'undefined' && navigator.clipboard?.writeText;
-  const isCopying = copyState === 'copying';
-  const copyLabel = copyState === 'copied' ? 'Copied!' : copyState === 'error' ? 'Copy failed' : 'Copy status';
-  const buttonText = copyState === 'copied' ? 'Copied!' : copyState === 'error' ? 'Retry copy' : 'Copy status';
-  const tooltipTitle = !clipboardAvailable
-    ? 'Clipboard unavailable'
-    : copyState === 'error'
-      ? 'Copy failed. Try again.'
-      : copyLabel;
-
-  const handleCopyStatus = async () => {
-    if (!canCopyStatus || !clipboardAvailable) {
-      return;
-    }
-
-    try {
-      setCopyState('copying');
-      await navigator.clipboard.writeText(task.statusSummary);
-      setCopyState('copied');
-      setTimeout(() => setCopyState('idle'), 2000);
-    } catch (error) {
-      console.warn('Unable to copy generated status', error);
-      setCopyState('error');
-      setTimeout(() => setCopyState('idle'), 3000);
-    }
-  };
-
   return (
-    <Card variant="outlined" sx={{ height: '100%' }}>
+    <Card variant="outlined" sx={{ borderRadius: 4 }}>
       <CardContent>
-        <Stack spacing={1.5}>
-          <Stack direction="row" justifyContent="space-between" alignItems="flex-start" gap={1.5}>
-            <Stack spacing={1} flexGrow={1}>
-              <Typography variant="h6" component="h3" sx={{ fontWeight: 600 }}>
+        <Stack spacing={1.75}>
+          <Stack direction="row" justifyContent="space-between" alignItems="flex-start" gap={1.5} sx={{ minWidth: 0 }}>
+            <Stack spacing={1} flexGrow={1} sx={{ minWidth: 0 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, wordBreak: 'break-word' }}>
                 {task.title}
               </Typography>
-              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ rowGap: 0.75 }}>
                 <Chip
                   icon={<FlagIcon fontSize="small" />}
                   label={`Priority: ${task.priority}`}
@@ -82,33 +63,67 @@ export default function TaskCard({ task, onStatusChange, onEdit, onDelete, onTim
             </Stack>
           </Stack>
           {task.details ? (
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line', wordBreak: 'break-word' }}>
               {task.details}
             </Typography>
           ) : null}
           {task.notes?.length ? (
-            <Stack direction="row" spacing={1} alignItems="flex-start" flexWrap="wrap" useFlexGap>
+            <Stack direction="row" spacing={1} alignItems="flex-start" flexWrap="wrap" useFlexGap sx={{ rowGap: 0.5 }}>
               <Chip icon={<NotesIcon fontSize="small" />} label="Notes" color="primary" variant="outlined" size="small" />
               {task.notes.map((note) => (
-                <Chip key={note} label={note} variant="outlined" size="small" />
+                <Chip
+                  key={note}
+                  label={note}
+                  variant="outlined"
+                  size="small"
+                  sx={{ wordBreak: 'break-word', maxWidth: '100%' }}
+                />
               ))}
             </Stack>
           ) : null}
           {task.statusSummary ? (
-            <Stack spacing={0.75} sx={{ p: 1.5, borderRadius: 2, border: '1px solid', borderColor: 'divider', bgcolor: 'background.default' }}>
+            <Stack
+              spacing={0.75}
+              sx={{
+                p: 1.5,
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: 'divider',
+                bgcolor: 'background.default'
+              }}
+            >
               <Typography variant="subtitle2" color="text.secondary">
                 Generated status
               </Typography>
-              <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+              <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                 {task.statusSummary}
               </Typography>
             </Stack>
           ) : null}
         </Stack>
       </CardContent>
-      <CardActions sx={{ justifyContent: 'space-between', px: 2.5, pb: 2.5, gap: 1.5, flexWrap: 'wrap' }}>
-        <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap" useFlexGap>
-          <FormControl size="small" sx={{ minWidth: 150 }}>
+      <CardActions
+        sx={{
+          justifyContent: 'space-between',
+          px: 2.5,
+          pb: 2.5,
+          gap: 1.5,
+          flexWrap: 'wrap'
+        }}
+      >
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={1.5}
+          alignItems={{ xs: 'stretch', sm: 'center' }}
+          flexWrap="wrap"
+          useFlexGap
+          sx={{ flexGrow: 1, minWidth: 0 }}
+        >
+          <FormControl
+            size="small"
+            fullWidth
+            sx={{ minWidth: { xs: '100%', sm: 160 }, flexBasis: { xs: '100%', sm: 'auto' } }}
+          >
             <InputLabel id={`status-label-${task.id}`}>Status</InputLabel>
             <Select labelId={`status-label-${task.id}`} label="Status" value={task.status} onChange={handleStatusChange}>
               {STATUS_OPTIONS.map((status) => (
@@ -125,26 +140,12 @@ export default function TaskCard({ task, onStatusChange, onEdit, onDelete, onTim
               placeholder="e.g. 2h"
               value={task.timeLog || ''}
               onChange={handleTimeChange}
+              fullWidth
+              sx={{ minWidth: { xs: '100%', sm: 150 }, flexBasis: { xs: '100%', sm: 'auto' } }}
             />
           ) : null}
         </Stack>
         <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
-          {task.statusSummary ? (
-            <Tooltip title={tooltipTitle} disableHoverListener={copyState === 'copied'}>
-              <span>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  size="small"
-                  startIcon={<ContentCopyIcon fontSize="small" />}
-                  onClick={handleCopyStatus}
-                  disabled={!clipboardAvailable || !canCopyStatus || isCopying}
-                >
-                  {buttonText}
-                </Button>
-              </span>
-            </Tooltip>
-          ) : null}
           <IconButton aria-label="Edit task" onClick={() => onEdit?.(task)} size="small" color="primary">
             <EditIcon fontSize="small" />
           </IconButton>
@@ -156,4 +157,3 @@ export default function TaskCard({ task, onStatusChange, onEdit, onDelete, onTim
     </Card>
   );
 }
-

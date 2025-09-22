@@ -3,9 +3,11 @@ import app from './app.js';
 import config from './config/env.js';
 
 const server = http.createServer(app);
+const host = config.host || '0.0.0.0';
 
-server.listen(config.port, () => {
-  console.log(`Server listening on http://localhost:${config.port}`);
+server.listen(config.port, host, () => {
+  const location = config.publicUrl || `${host}:${config.port}`;
+  console.log(`Server listening on ${location}`);
   console.log(`Active provider: ${config.modelProvider}`);
 });
 

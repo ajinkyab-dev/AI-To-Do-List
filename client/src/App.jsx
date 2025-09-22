@@ -13,9 +13,20 @@ import ScheduleBoard from './components/ScheduleBoard';
 import AddTaskDialog from './components/AddTaskDialog';
 import TaskEditorDialog from './components/TaskEditorDialog';
 import StatusReportDialog from './components/StatusReportDialog';
+import TimeLogDialog from './components/TimeLogDialog';
 import { useTaskOrganizer } from './hooks/useTaskOrganizer';
 import { generateTaskStatusUpdates, organizeTasks as analyzeNotes, summarizeTitle } from './api';
 import { buildSchedule, computeStats, removeTask, sortByPriority, updateTask, withClientId } from './utils/taskUtils';
+
+const mapTaskForStatusView = (task) => ({
+  id: task.id,
+  title: task.title,
+  status: task.status,
+  description: task.details || task.statusSummary || '',
+  timeLog: task.timeLog || '',
+  hours: task.hoursSpent || '',
+  statusSummary: task.statusSummary || ''
+});
 
 export default function App() {
   const organizer = useTaskOrganizer();
@@ -36,6 +47,7 @@ export default function App() {
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [statusReport, setStatusReport] = useState(null);
   const [statusError, setStatusError] = useState(null);
+  const [timeLogPrompt, setTimeLogPrompt] = useState(null);
 
   const applyTasks = useCallback((input) => {
     setTasks((prev) => {
@@ -69,15 +81,23 @@ export default function App() {
   }, [applyTasks, reset]);
 
   const handleStatusChange = useCallback(
-    (id, status) => {
+    (id, status, originalTask) => {
       applyTasks((prev) =>
         updateTask(prev, id, (current) => ({
           status,
-          timeLog: status === 'Completed' ? current.timeLog : '',
+          timeLog: status === 'Completed' ? current.timeLog || '' : '',
         }))
       );
+
+      if (status === 'Completed' && originalTask?.status !== 'Completed') {
+        setTimeLogPrompt({
+          taskId: id,
+          title: originalTask?.title || '',
+          value: originalTask?.timeLog || '',
+        });
+      }
     },
-    [applyTasks]
+    [applyTasks, setTimeLogPrompt]
   );
 
   const handleTimeLogChange = useCallback(
@@ -85,6 +105,23 @@ export default function App() {
       applyTasks((prev) => updateTask(prev, id, () => ({ timeLog })));
     },
     [applyTasks]
+  );
+
+  const closeTimeLogPrompt = useCallback(() => {
+    setTimeLogPrompt(null);
+  }, []);
+
+  const handleTimeLogSave = useCallback(
+    (timeValue) => {
+      if (!timeLogPrompt?.taskId) {
+        closeTimeLogPrompt();
+        return;
+      }
+
+      applyTasks((prev) => updateTask(prev, timeLogPrompt.taskId, () => ({ timeLog: timeValue })));
+      closeTimeLogPrompt();
+    },
+    [applyTasks, timeLogPrompt, closeTimeLogPrompt]
   );
 
   const handleDeleteTask = useCallback(
@@ -150,7 +187,6 @@ export default function App() {
     [titleMutation]
   );
 
-  const inProgressTasks = useMemo(() => tasks.filter((task) => task.status === 'In Progress'), [tasks]);
   const completedTasks = useMemo(() => tasks.filter((task) => task.status === 'Completed'), [tasks]);
   const activeTasks = useMemo(() => tasks.filter((task) => task.status !== 'Completed'), [tasks]);
   const statusEligibleCount = tasks.length;
@@ -180,6 +216,8 @@ export default function App() {
         ? result.updates.map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
         : [];
 
+      let taskSnapshot = tasks;
+
       if (updates.length) {
         const statusMap = new Map();
         taskPayload.forEach((item, index) => {
@@ -189,33 +227,45 @@ export default function App() {
         });
 
         if (statusMap.size) {
-          applyTasks((prev) =>
-            prev.map((task) => {
-              if (!statusMap.has(task.id)) {
-                return task;
-              }
-              const nextStatus = statusMap.get(task.id);
-              if (typeof nextStatus !== 'string') {
-                return task;
-              }
-              return {
-                ...task,
-                statusSummary: nextStatus
-              };
-            })
-          );
+          const withSummaries = tasks.map((task) => {
+            if (!statusMap.has(task.id)) {
+              return task;
+            }
+            const nextStatus = statusMap.get(task.id);
+            if (typeof nextStatus !== 'string') {
+              return task;
+            }
+            return {
+              ...task,
+              statusSummary: nextStatus
+            };
+          });
+
+          taskSnapshot = withSummaries;
+          applyTasks(withSummaries);
         }
       }
+
+      const completedSnapshot = taskSnapshot
+        .filter((task) => task.status === 'Completed')
+        .map(mapTaskForStatusView);
+      const inProgressSnapshot = taskSnapshot
+        .filter((task) => task.status === 'In Progress')
+        .map(mapTaskForStatusView);
 
       setStatusReport({
         updates,
         provider: result?.provider,
         model: result?.model,
-        warning: result?.warning
+        warning: result?.warning,
+        completedTasks: completedSnapshot,
+        inProgressTasks: inProgressSnapshot,
+        generatedAt: new Date().toISOString()
       });
     } catch (err) {
       setStatusError(err instanceof Error ? err.message : 'Unable to generate status update.');
-    }  }, [tasks, statusMutation, applyTasks]);
+    }
+  }, [tasks, statusMutation, applyTasks]);
 
   const closeStatusDialog = useCallback(() => {
     setStatusDialogOpen(false);
@@ -334,16 +384,13 @@ export default function App() {
         provider={statusReport?.provider}
         error={statusError}
       />
+      <TimeLogDialog
+        open={Boolean(timeLogPrompt)}
+        taskTitle={timeLogPrompt?.title}
+        initialValue={timeLogPrompt?.value || ''}
+        onCancel={closeTimeLogPrompt}
+        onSave={handleTimeLogSave}
+      />
     </Container>
   );
 }
-
-
-
-
-
-
-
-
-
-
