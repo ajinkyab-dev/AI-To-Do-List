@@ -21,7 +21,7 @@ export default function EmptyState() {
       <Stack spacing={0.5}>
         <Typography variant="h6">No tasks organized yet</Typography>
         <Typography color="text.secondary">
-          Paste a few rough notes and tap “Organize tasks” to get started.
+          Paste a few rough notes and tap "Organize tasks" to get started.
         </Typography>
       </Stack>
     </Stack>

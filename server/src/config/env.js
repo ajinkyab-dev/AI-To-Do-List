@@ -18,8 +18,12 @@ const parseList = (value) =>
     .map((item) => item.trim())
     .filter(Boolean) || [];
 
+const normalizeUrl = (value) => (value ? value.replace(/\/$/, '') : '');
+
 const config = {
+  host: process.env.SERVER_HOST || process.env.HOST || '0.0.0.0',
   port: Number.parseInt(process.env.PORT || '8000', 10),
+  publicUrl: normalizeUrl(process.env.PUBLIC_URL || process.env.SERVER_PUBLIC_URL || ''),
   modelProvider: (process.env.MODEL_PROVIDER || 'mock').toLowerCase(),
   openai: {
     apiKey: process.env.OPENAI_API_KEY,

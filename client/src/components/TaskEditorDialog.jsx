@@ -113,7 +113,7 @@ export default function TaskEditorDialog({ open, task, onClose, onSave, onGenera
             multiline
             minRows={3}
           />
-          {isCreating ? (
+          {!isCreating ? (
             <TextField
               label="Developer comments"
               placeholder="Include progress or blocking notes"
@@ -164,5 +164,6 @@ export default function TaskEditorDialog({ open, task, onClose, onSave, onGenera
     </Dialog>
   );
 }
+
 
 

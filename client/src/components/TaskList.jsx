@@ -1,4 +1,4 @@
-import { Grid, Paper, Stack, Typography } from '@mui/material';
+import { Box, Grid, Paper, Stack, Typography } from '@mui/material';
 import TaskCard from './TaskCard';
 import { sortByPriority } from '../utils/taskUtils';
 
@@ -41,26 +41,42 @@ export default function TaskList({ tasks, grouped, onStatusChange, onEdit, onDel
   const groupedTasks = groupTasks(ordered);
 
   return (
-    <Grid container spacing={3} sx={{ mt: 1 }}>
+    <Box
+      sx={{
+        mt: 1,
+        display: 'grid',
+        gap: 3,
+        gridTemplateColumns: {
+          xs: '1fr',
+          md: 'repeat(auto-fit, minmax(320px, 1fr))'
+        }
+      }}
+    >
       {Object.entries(groupedTasks).map(([category, list]) => (
-        <Grid key={category} item xs={12} md={6} lg={4}>
-          <Paper
-            variant="outlined"
-            sx={{
-              height: '100%',
-              p: 3,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 2,
-              borderRadius: 4,
-              borderColor: 'divider',
-              background: (theme) =>
-                theme.palette.mode === 'light'
-                  ? 'linear-gradient(135deg, rgba(43,108,176,0.08), rgba(56,161,105,0.08))'
-                  : theme.palette.background.default
-            }}
-          >
-            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1} flexWrap="wrap" useFlexGap sx={{ rowGap: 0.5 }}>
+        <Paper
+          key={category}
+          variant="outlined"
+          sx={{
+            p: 3,
+            borderRadius: 4,
+            borderColor: 'divider',
+            background: (theme) =>
+              theme.palette.mode === 'light'
+                ? 'linear-gradient(135deg, rgba(43,108,176,0.08), rgba(56,161,105,0.08))'
+                : theme.palette.background.default,
+            alignSelf: 'start'
+          }}
+        >
+          <Stack spacing={2}>
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              spacing={1}
+              flexWrap="wrap"
+              useFlexGap
+              sx={{ rowGap: 0.5 }}
+            >
               <Typography variant="h6" fontWeight={600} sx={{ textTransform: 'capitalize' }}>
                 {category}
               </Typography>
@@ -68,7 +84,7 @@ export default function TaskList({ tasks, grouped, onStatusChange, onEdit, onDel
                 {list.length} task{list.length > 1 ? 's' : ''}
               </Typography>
             </Stack>
-            <Stack spacing={2} sx={{ flexGrow: 1 }}>
+            <Stack spacing={2}>
               {sortByPriority(list).map((task) => (
                 <TaskCard
                   key={task.id}
@@ -80,10 +96,9 @@ export default function TaskList({ tasks, grouped, onStatusChange, onEdit, onDel
                 />
               ))}
             </Stack>
-          </Paper>
-        </Grid>
+          </Stack>
+        </Paper>
       ))}
-    </Grid>
+    </Box>
   );
 }
-
