@@ -7,8 +7,7 @@ const DEFAULT_TASK = {
   priority: 'Medium',
   category: 'Work',
   status: 'To Do',
-  details: '',
-  developerNotes: ''
+  details: ''
 };
 
 export default function TaskEditorDialog({ open, task, onClose, onSave, onGenerateTitle, generatingTitle, isCreating }) {
@@ -22,8 +21,7 @@ export default function TaskEditorDialog({ open, task, onClose, onSave, onGenera
         priority: task.priority || 'Medium',
         category: task.category || 'Work',
         status: task.status || 'To Do',
-        details: task.details || '',
-        developerNotes: task.developerNotes || ''
+        details: task.details || ''
       });
     } else {
       setDraft(DEFAULT_TASK);
@@ -113,16 +111,6 @@ export default function TaskEditorDialog({ open, task, onClose, onSave, onGenera
             multiline
             minRows={3}
           />
-          {!isCreating ? (
-            <TextField
-              label="Developer comments"
-              placeholder="Include progress or blocking notes"
-              value={draft.developerNotes}
-              onChange={handleChange('developerNotes')}
-              multiline
-              minRows={2}
-            />
-          ) : null}
           <FormControl fullWidth>
             <InputLabel id="priority-label">Priority</InputLabel>
             <Select labelId="priority-label" label="Priority" value={draft.priority} onChange={handleChange('priority')}>
@@ -164,6 +152,3 @@ export default function TaskEditorDialog({ open, task, onClose, onSave, onGenera
     </Dialog>
   );
 }
-
-
-

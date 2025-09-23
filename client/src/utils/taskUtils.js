@@ -25,22 +25,22 @@ const PRIORITY_ORDER = {
 };
 
 function ensureTaskShape(task = {}) {
+  const { developerNotes, ...rest } = task || {};
+  const base = rest || {};
   return {
-    ...task,
-    id: task.id || uuidv4(),
-    title: task.title || 'Untitled task',
-    priority: task.priority || 'Medium',
-    category: task.category || CATEGORY_FALLBACK,
-    status: task.status || 'To Do',
-    notes: Array.isArray(task.notes) ? task.notes : [],
-    details: task.details || '',
-    developerNotes: task.developerNotes || '',
-    timeLog: task.timeLog || '',
-    hoursSpent: task.hoursSpent ?? '',
-    statusSummary: task.statusSummary || ''
+    ...base,
+    id: base.id || uuidv4(),
+    title: base.title || 'Untitled task',
+    priority: base.priority || 'Medium',
+    category: base.category || CATEGORY_FALLBACK,
+    status: base.status || 'To Do',
+    notes: Array.isArray(base.notes) ? base.notes : [],
+    details: base.details || '',
+    timeLog: base.timeLog || '',
+    hoursSpent: base.hoursSpent ?? '',
+    statusSummary: base.statusSummary || ''
   };
 }
-
 export function withClientId(tasks) {
   return (tasks || []).map((task) => ensureTaskShape(task));
 }

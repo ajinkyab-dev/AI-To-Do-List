@@ -143,7 +143,6 @@ export default function App() {
       category: 'Work',
       status: 'To Do',
       details: '',
-      developerNotes: '',
       notes: [],
     });
     setIsCreatingTask(true);
