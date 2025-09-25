@@ -181,22 +181,19 @@ function prepareTaskData ({ userId, task }) {
   }
 }
 
-async function replaceUserTasks (userId, tasks) {
+async function appendUserTasks (userId, tasks) {
+  if (!tasks.length) {
+    return []
+  }
   return prisma.$transaction(async (tx) => {
-    await tx.task.deleteMany({ where: { userId } })
-
-    if (!tasks.length) {
-      return []
-    }
-
-    const creations = []
+    const createdRecords = []
     for (const task of tasks) {
       const created = await tx.task.create({
         data: prepareTaskData({ userId, task })
       })
-      creations.push(created)
+      createdRecords.push(created)
     }
-    return creations
+    return createdRecords
   })
 }
 
@@ -286,15 +283,17 @@ export async function organizeTasks ({ user, notes, groupByCategory }) {
   }
 
   const sanitized = sanitizeTasks(tasks)
-  const persisted = await replaceUserTasks(user.id, sanitized)
+  await appendUserTasks(user.id, sanitized)
 
   await prisma.user.update({
     where: { id: user.id },
     data: { groupByCategory: groupedPreference }
-  })
+  }).catch(() => {})
+
+  const allTasks = await prisma.task.findMany({ where: { userId: user.id }, orderBy: { createdAt: 'asc' } })
 
   return buildResponse({
-    tasks: persisted,
+    tasks: allTasks,
     grouped: groupedPreference,
     provider,
     providerLabel,
