@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, Typography } from '@mui/material';
-import CircularProgress from '@mui/material/CircularProgress';
+import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, Typography } from '@mui/material';
 
 const formatTaskLine = (task, index) => {
-  const parts = [`${index + 1}. ${task.title}`];
   const cleanedDescription = (() => {
     const raw = (task.description || task.statusSummary || '').trim();
     if (!raw) {
@@ -15,14 +13,27 @@ const formatTaskLine = (task, index) => {
     }
     return withoutPrefix;
   })();
+
+  const hours = (task.timeLog?.trim() || task.hours?.trim() || '');
+
+  let line = `${index + 1}. ${task.title}`;
+
   if (cleanedDescription) {
-    parts.push(` - ${cleanedDescription}`);
+    line += ` - ${cleanedDescription}`;
   }
-  const hours = task.timeLog?.trim() || task.hours?.trim();
+
   if (hours) {
-    parts.push(` (Hours: ${hours})`);
+    const descriptionLower = cleanedDescription.toLowerCase();
+    const hoursLower = hours.toLowerCase();
+    const descriptionHasTime = descriptionLower.includes(hoursLower) || descriptionLower.includes('time spent');
+
+    if (!descriptionHasTime) {
+      const connector = cleanedDescription ? (/[.!?]$/.test(cleanedDescription) ? ' ' : '. ') : ' - ';
+      line += `${connector}Time spent: ${hours}`;
+    }
   }
-  return parts.join('');
+
+  return line;
 };
 
 const buildSection = (title, tasks) => {
@@ -93,9 +104,7 @@ export default function StatusReportDialog({ open, onClose, report, loading, pro
       <DialogTitle>Status update</DialogTitle>
       <DialogContent dividers>
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-            <CircularProgress />
-          </Box>
+          <Typography variant="body2" color="text.secondary">Generating status report...</Typography>
         ) : error ? (
           <Typography color="error">{error}</Typography>
         ) : hasSummary ? (

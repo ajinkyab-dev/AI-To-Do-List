@@ -1,17 +1,17 @@
-export function extractJsonObject(text) {
+export function extractJsonObject (text) {
   if (typeof text !== 'string') {
-    return null;
+    return null
   }
-  const firstBrace = text.indexOf('{');
-  const lastBrace = text.lastIndexOf('}');
+  const firstBrace = text.indexOf('{')
+  const lastBrace = text.lastIndexOf('}')
   if (firstBrace === -1 || lastBrace === -1 || firstBrace > lastBrace) {
-    return null;
+    return null
   }
-  const jsonSlice = text.slice(firstBrace, lastBrace + 1);
+  const jsonSlice = text.slice(firstBrace, lastBrace + 1)
   try {
-    return JSON.parse(jsonSlice);
+    return JSON.parse(jsonSlice)
   } catch (error) {
-    return null;
+    return null
   }
 }
 
@@ -25,37 +25,37 @@ const STATUS_ALIASES = new Map([
   ['completed', 'Completed'],
   ['done', 'Completed'],
   ['finished', 'Completed']
-]);
+])
 
-export function normalizePriority(value) {
-  const normalized = typeof value === 'string' ? value.trim().toLowerCase() : '';
-  if (normalized === 'high') return 'High';
-  if (normalized === 'low') return 'Low';
-  return 'Medium';
+export function normalizePriority (value) {
+  const normalized = typeof value === 'string' ? value.trim().toLowerCase() : ''
+  if (normalized === 'high') return 'High'
+  if (normalized === 'low') return 'Low'
+  return 'Medium'
 }
 
-export function normalizeStatus(value) {
-  if (!value) return 'To Do';
+export function normalizeStatus (value) {
+  if (!value) return 'To Do'
   if (typeof value === 'string') {
-    const key = value.trim().toLowerCase();
+    const key = value.trim().toLowerCase()
     if (STATUS_ALIASES.has(key)) {
-      return STATUS_ALIASES.get(key);
+      return STATUS_ALIASES.get(key)
     }
     if (key === 'in progress') {
-      return 'In Progress';
+      return 'In Progress'
     }
     if (key === 'completed') {
-      return 'Completed';
+      return 'Completed'
     }
   }
-  return 'To Do';
+  return 'To Do'
 }
 
-export function sanitizeNotes(value) {
+export function sanitizeNotes (value) {
   if (!Array.isArray(value)) {
-    return [];
+    return []
   }
   return value
     .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
-    .filter(Boolean);
+    .filter(Boolean)
 }

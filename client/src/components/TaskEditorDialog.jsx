@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, Stack, TextField } from '@mui/material';
-import { CATEGORY_OPTIONS, PRIORITY_OPTIONS, STATUS_OPTIONS } from '../utils/taskUtils';
+import { useEffect, useState } from 'react'
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, Stack, TextField } from '@mui/material'
+import { CATEGORY_OPTIONS, PRIORITY_OPTIONS, STATUS_OPTIONS } from '../utils/taskUtils'
 
 const DEFAULT_TASK = {
   title: '',
@@ -8,11 +8,10 @@ const DEFAULT_TASK = {
   category: 'Work',
   status: 'To Do',
   details: ''
-};
+}
 
-export default function TaskEditorDialog({ open, task, onClose, onSave, onGenerateTitle, generatingTitle, isCreating }) {
-  const [draft, setDraft] = useState(DEFAULT_TASK);
-  const [autoRequested, setAutoRequested] = useState(false);
+export default function TaskEditorDialog ({ open, task, onClose, onSave, onGenerateTitle, generatingTitle, isCreating }) {
+  const [draft, setDraft] = useState(DEFAULT_TASK)
 
   useEffect(() => {
     if (task) {
@@ -22,98 +21,68 @@ export default function TaskEditorDialog({ open, task, onClose, onSave, onGenera
         category: task.category || 'Work',
         status: task.status || 'To Do',
         details: task.details || ''
-      });
+      })
     } else {
-      setDraft(DEFAULT_TASK);
+      setDraft(DEFAULT_TASK)
     }
-    setAutoRequested(false);
-  }, [task]);
-
-  useEffect(() => {
-    if (!open) {
-      setAutoRequested(false);
-      return;
-    }
-
-    if (isCreating) {
-      return;
-    }
-
-    if (!draft.details || !onGenerateTitle || autoRequested || generatingTitle) {
-      return;
-    }
-
-    setAutoRequested(true);
-    (async () => {
-      try {
-        const result = await onGenerateTitle({ ...draft });
-        if (result?.title) {
-          setDraft((prev) => ({ ...prev, title: result.title }));
-        }
-      } catch (error) {
-        // ignore, user can trigger manually
-      }
-    })();
-  }, [open, draft, isCreating, onGenerateTitle, autoRequested, generatingTitle]);
+  }, [task])
 
   const handleChange = (key) => (event) => {
-    setDraft((prev) => ({ ...prev, [key]: event.target.value }));
-  };
+    setDraft((prev) => ({ ...prev, [key]: event.target.value }))
+  }
 
   const handleSubmit = (event) => {
-    event.preventDefault();
+    event.preventDefault()
     if (!draft.title.trim()) {
-      return;
+      return
     }
-    onSave?.(draft);
-  };
+    onSave?.(draft)
+  }
 
   const handleGenerateTitle = async () => {
-    if (!onGenerateTitle) return;
+    if (!onGenerateTitle) return
     try {
-      const result = await onGenerateTitle(draft);
+      const result = await onGenerateTitle(draft)
       if (result?.title) {
-        setDraft((prev) => ({ ...prev, title: result.title }));
+        setDraft((prev) => ({ ...prev, title: result.title }))
       }
     } catch (error) {
-      // no-op
+      // ignore
     }
-  };
+  }
 
   const handleClose = () => {
-    setAutoRequested(false);
-    onClose?.();
-  };
+    onClose?.()
+  }
 
   return (
-    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm" component="form" onSubmit={handleSubmit}>
+    <Dialog open={open} onClose={handleClose} fullWidth maxWidth='sm' component='form' onSubmit={handleSubmit}>
       <DialogTitle>{isCreating ? 'Create task' : 'Edit task'}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ xs: 'stretch', sm: 'flex-end' }}>
             <TextField
-              label="Task title"
+              label='Task title'
               value={draft.title}
               onChange={handleChange('title')}
               required
               fullWidth
-              autoFocus
             />
-            <Button onClick={handleGenerateTitle} disabled={generatingTitle} variant="outlined">
+            <Button onClick={handleGenerateTitle} disabled={generatingTitle} variant='outlined'>
               {generatingTitle ? 'Generating...' : 'Generate title'}
             </Button>
           </Stack>
           <TextField
-            label="Details"
-            placeholder="Extended description, acceptance criteria, etc."
+            label='Details'
+            placeholder='Extended description, acceptance criteria, etc.'
             value={draft.details}
             onChange={handleChange('details')}
             multiline
             minRows={3}
           />
           <FormControl fullWidth>
-            <InputLabel id="priority-label">Priority</InputLabel>
-            <Select labelId="priority-label" label="Priority" value={draft.priority} onChange={handleChange('priority')}>
+            <InputLabel id='priority-label'>Priority</InputLabel>
+            <Select labelId='priority-label' label='Priority' value={draft.priority} onChange={handleChange('priority')}>
               {PRIORITY_OPTIONS.map((priority) => (
                 <MenuItem key={priority} value={priority}>
                   {priority}
@@ -122,8 +91,8 @@ export default function TaskEditorDialog({ open, task, onClose, onSave, onGenera
             </Select>
           </FormControl>
           <FormControl fullWidth>
-            <InputLabel id="category-label">Category</InputLabel>
-            <Select labelId="category-label" label="Category" value={draft.category} onChange={handleChange('category')}>
+            <InputLabel id='category-label'>Category</InputLabel>
+            <Select labelId='category-label' label='Category' value={draft.category} onChange={handleChange('category')}>
               {CATEGORY_OPTIONS.map((category) => (
                 <MenuItem key={category} value={category}>
                   {category}
@@ -132,8 +101,8 @@ export default function TaskEditorDialog({ open, task, onClose, onSave, onGenera
             </Select>
           </FormControl>
           <FormControl fullWidth>
-            <InputLabel id="status-label">Status</InputLabel>
-            <Select labelId="status-label" label="Status" value={draft.status} onChange={handleChange('status')}>
+            <InputLabel id='status-label'>Status</InputLabel>
+            <Select labelId='status-label' label='Status' value={draft.status} onChange={handleChange('status')}>
               {STATUS_OPTIONS.map((status) => (
                 <MenuItem key={status} value={status}>
                   {status}
@@ -145,10 +114,10 @@ export default function TaskEditorDialog({ open, task, onClose, onSave, onGenera
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button type="submit" variant="contained" disabled={!draft.title.trim()}>
+        <Button type='submit' variant='contained' disabled={!draft.title.trim()}>
           Save changes
         </Button>
       </DialogActions>
     </Dialog>
-  );
+  )
 }
