@@ -31,7 +31,6 @@ export default function AddTaskDialog({ open, onClose, onSubmit, loading }) {
             value={notes}
             onChange={(event) => setNotes(event.target.value)}
             disabled={loading}
-            autoFocus
           />
         </Stack>
       </DialogContent>

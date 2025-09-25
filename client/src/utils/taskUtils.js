@@ -25,8 +25,8 @@ const PRIORITY_ORDER = {
 };
 
 function ensureTaskShape(task = {}) {
-  const { developerNotes, ...rest } = task || {};
-  const base = rest || {};
+  const base = task || {};
+
   return {
     ...base,
     id: base.id || uuidv4(),

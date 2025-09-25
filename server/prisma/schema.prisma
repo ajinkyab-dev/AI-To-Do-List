@@ -1,0 +1,53 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum TaskStatus {
+  ToDo
+  InProgress
+  Completed
+}
+
+model User {
+  id              String   @id @default(cuid())
+  googleSub       String   @unique
+  email           String   @unique
+  displayName     String?
+  avatarUrl       String?
+  groupByCategory Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  tasks           Task[]
+}
+
+model Task {
+  id            String     @id @default(cuid())
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  title         String
+  details       String?
+  category      String?    @default("Work")
+  priority      String     @default("Medium")
+  status        TaskStatus @default(ToDo)
+  notes         Json       @default("[]")
+  timeLog       String?
+  hoursSpent    String?
+  statusSummary String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  snapshots     TaskSnapshot[]
+}
+
+model TaskSnapshot {
+  id        String   @id @default(cuid())
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId    String
+  provider  String?
+  model     String?
+  payload   Json
+  createdAt DateTime @default(now())
+}

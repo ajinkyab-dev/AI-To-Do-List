@@ -56,6 +56,14 @@ npm run dev
 
 Visit `http://localhost:5173`. The Vite dev server proxies `/api` requests to `http://localhost:8000` by default.
 
+## Google Sign-In
+
+- Create an OAuth 2.0 Client ID of type "Web application" in the Google Cloud console.
+- Add your local and deployed origins to the client ID authorized JavaScript origins (e.g. `http://localhost:5173`).
+- Set `GOOGLE_CLIENT_ID` in `server/.env` and `VITE_GOOGLE_CLIENT_ID` in `client/.env` to the same client ID value.
+- The frontend uses Google Identity Services to obtain an ID token; the backend verifies it and upserts the user record via Prisma.
+- Every authenticated request must send the Google ID token in the `Authorization: Bearer <token>` header (handled automatically by the client helper).
+
 ## Production build
 
 1. Build the frontend:
@@ -115,3 +123,4 @@ Sample API response:
 - Add automated tests around the task formatting pipeline.
 - Extend the backend with application telemetry and structured logging.
 - Harden prompts and response validation once specific AI models are finalised.
+

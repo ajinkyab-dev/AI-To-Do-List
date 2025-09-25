@@ -81,25 +81,6 @@ export default function TaskCard({ task, onStatusChange, onEdit, onDelete, onTim
               ))}
             </Stack>
           ) : null}
-          {task.statusSummary ? (
-            <Stack
-              spacing={0.75}
-              sx={{
-                p: 1.5,
-                borderRadius: 2,
-                border: '1px solid',
-                borderColor: 'divider',
-                bgcolor: 'background.default'
-              }}
-            >
-              <Typography variant="subtitle2" color="text.secondary">
-                Generated status
-              </Typography>
-              <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-                {task.statusSummary}
-              </Typography>
-            </Stack>
-          ) : null}
         </Stack>
       </CardContent>
       <CardActions
@@ -157,3 +138,6 @@ export default function TaskCard({ task, onStatusChange, onEdit, onDelete, onTim
     </Card>
   );
 }
+
+
+
